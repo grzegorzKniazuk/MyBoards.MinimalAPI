@@ -1,6 +1,6 @@
 ﻿namespace MyBoards.MinimalAPI.Entities;
 
-public class WorkItem {
+public abstract class WorkItem {
     
     public int Id { get; set; }
     
@@ -11,25 +11,6 @@ public class WorkItem {
     public string IterationPath { get; set; }
 
     public int Priority { get; set; }
-    
-    // Epic Fields
-    public DateTime? StartDate { get; set; }
-    
-    // [Precision(3)] Example of precision for DateTime
-    public DateTime? EndDate { get; set; }
-    
-    // Issue Fields
-    // [Column(TypeName = "decimal(5,2)")] Example of precision for decimal
-    public decimal Effort { get; set; }
-    
-    // Task Fields
-    // [MaxLength(200)] Example of max length constraint
-    public string Activity { get; set; }
-    
-    // [Precision(14,2)] Example of precision for decimal
-    public decimal RemainingWork { get; set; }
-    
-    public string Type { get; set; }
     
     // Navigation properties
     public List<Comment> Comments { get; set; } = [];
