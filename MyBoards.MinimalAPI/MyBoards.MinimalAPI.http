@@ -1,0 +1,6 @@
+@MyBoards.MinimalAPI_HostAddress = http://localhost:5141
+
+GET {{MyBoards.MinimalAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
