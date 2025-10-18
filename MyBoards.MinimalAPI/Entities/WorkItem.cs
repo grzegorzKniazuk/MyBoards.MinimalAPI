@@ -4,9 +4,6 @@ public class WorkItem {
     
     public int Id { get; set; }
     
-    // [Required] Example of required field
-    public string State { get; set; }
-    
     // [Column(TypeName = "varchar(200)")] Example of custom column type
     public string Area { get; set; }
     
@@ -37,6 +34,10 @@ public class WorkItem {
     // Navigation properties
     public List<Comment> Comments { get; set; } = [];
     public List<Tag> Tags { get; set; } = [];
+    
+    public WorkItemState State { get; set; }
+    public int StateId { get; set; }
+    
     public User Author { get; set; }
     public Guid AuthorId { get; set; }
 }
