@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyBoards.MinimalAPI;
 
@@ -11,9 +12,11 @@ using MyBoards.MinimalAPI;
 namespace MyBoards.MinimalAPI.Migrations
 {
     [DbContext(typeof(MyBoardsDbContext))]
-    partial class MyBoardsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251019165808_WorkItemStateSeed")]
+    partial class WorkItemStateSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
