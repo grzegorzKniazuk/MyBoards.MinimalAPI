@@ -11,4 +11,7 @@ public class User {
     
     // Navigation property for the related WorkItems
     public List<WorkItem> WorkItems { get; set; } = [];
+    
+    // Navigation property for the related Comments
+    public List<Comment> Comments { get; set; } = [];
 }

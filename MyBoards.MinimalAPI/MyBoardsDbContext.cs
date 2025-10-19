@@ -91,6 +91,11 @@ public class MyBoardsDbContext : DbContext {
             builder.HasOne(u => u.Address)
                 .WithOne(a => a.User)
                 .HasForeignKey<Address>(a => a.UserId);
+            
+            // 1:N relationship between User and Comments
+            builder.HasMany(u => u.Comments)
+                .WithOne(c => c.Author)
+                .HasForeignKey(c => c.AuthorId).OnDelete(DeleteBehavior.NoAction);
         });
     }
 }
