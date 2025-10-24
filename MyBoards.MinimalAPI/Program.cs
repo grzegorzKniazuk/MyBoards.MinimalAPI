@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MyBoards.MinimalAPI;
+using MyBoards.MinimalAPI.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<JsonOptions>(options => {
+    // Ignore possible reference loops
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 builder.Services.AddDbContext<MyBoardsDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyBoardsConnection")));
 
@@ -39,7 +47,7 @@ app.MapGet("data", (MyBoardsDbContext db) => {
 
     // get epic work items with onhold state sorted by priority
     var epicOnHoldWorkItems = db.EpicWorkItems.Where(w => w.State.Id == 4).OrderBy(w => w.Priority).ToList();
-    
+
     // user with most comments
     var userMostComments = db.WorkItemComments.GroupBy(c => c.AuthorId)
         .Select(g => new { authorId = g.Key, count = g.Count() })
@@ -49,6 +57,12 @@ app.MapGet("data", (MyBoardsDbContext db) => {
     if (userMostComments != null) {
         var userMostCommentsDetails = db.Users.Find(userMostComments.authorId);
     }
+    
+    // user with relations by include (join in sql)
+    var user = db.Users
+        .Include(u => u.Comments).ThenInclude(c => c.WorkItem)
+        .Include(u => u.Address)
+        .First(u => u.Id == Guid.Parse("d290f1ee-6c54-4b01-90e6-d701748f0851"));
 
     return Results.Ok(tags);
 });
@@ -58,8 +72,41 @@ app.MapPut("update", (MyBoardsDbContext db) => {)
     var epic = db.EpicWorkItems.First(epic => epic.Id == 1);
     epic.Priority = 10;
     db.SaveChanges();
-    
+
     return Results.Ok(epic);
+});
+
+// add a new tag
+app.MapPost("addTag", (MyBoardsDbContext db) => {
+    var newIssue = new Tag {
+        Value = "EFCore"
+    };
+
+    db.WorkItemTags.Add(newIssue);
+    db.SaveChanges();
+
+    return Results.Ok(newIssue);
+});
+
+// add a new user with address
+app.MapPost("addUser", (MyBoardsDbContext db) => {
+    var newUser = new User {
+        // Id will be generated automatically
+        FullName = "New User",
+        Email = "example@gmail.com",
+        Address = new Address {
+            // id will be generated automatically
+            Country = "USA",
+            City = "New York",
+            Street = "5th Avenue",
+            PostalCode = "10001"
+        }
+    };
+
+    db.Users.Add(newUser);
+    db.SaveChanges();
+    
+    return Results.Ok(newUser);
 });
 
 app.Run();
