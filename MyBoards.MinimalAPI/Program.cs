@@ -40,7 +40,11 @@ app.MapGet("data", (MyBoardsDbContext db) => {
     var tags = db.WorkItems.ToList();
 
     // get top 5 newest comments
-    var top5NewestComments = db.WorkItemComments.OrderByDescending(c => c.CreatedDate).Take(5).ToList();
+    var top5NewestComments = db.WorkItemComments
+        .AsNoTracking() // improve read performance for read-only queries - change tracking disabled
+        .OrderByDescending(c => c.CreatedDate)
+        .Take(5)
+        .ToList();
 
     // get count of work items by state
     var statesCount = db.WorkItems.GroupBy(c => c.StateId).Select(g => new { stateId = g.Key, c = g.Count() }).ToList();
