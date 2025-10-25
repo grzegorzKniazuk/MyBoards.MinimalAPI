@@ -101,7 +101,7 @@ public class MyBoardsDbContext : DbContext {
             // 1:N relationship between User and Comments
             builder.HasMany(u => u.Comments)
                 .WithOne(c => c.Author)
-                .HasForeignKey(c => c.AuthorId).OnDelete(DeleteBehavior.NoAction);
+                .HasForeignKey(c => c.AuthorId).OnDelete(DeleteBehavior.ClientCascade); // use client cascade to avoid cycles
         });
     }
 }
