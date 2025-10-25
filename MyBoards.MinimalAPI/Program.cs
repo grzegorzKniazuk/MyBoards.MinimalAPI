@@ -37,7 +37,9 @@ if (pendingMigrations.Any()) {
 
 app.MapGet("data", (MyBoardsDbContext db) => {
     // get all tags
-    var tags = db.WorkItems.ToList();
+    var tags = db.WorkItems
+        .AsNoTracking()
+        .ToList();
 
     // get top 5 newest comments
     var top5NewestComments = db.WorkItemComments
@@ -45,6 +47,15 @@ app.MapGet("data", (MyBoardsDbContext db) => {
         .OrderByDescending(c => c.CreatedDate)
         .Take(5)
         .ToList();
+    
+    // manually attach entity to change tracker
+    var tag = db.WorkItemTags.AsNoTracking().First();
+    var entry = db.WorkItemTags.Attach(tag); // now tracked by change tracker
+    entry.Entity.Value = "Updated Tag Value";
+    entry.State = EntityState.Modified;
+    db.SaveChanges();
+
+    var entityEntries = db.ChangeTracker.Entries().ToList(); // should be empty due to AsNoTracking()
 
     // get count of work items by state
     var statesCount = db.WorkItems.GroupBy(c => c.StateId).Select(g => new { stateId = g.Key, c = g.Count() }).ToList();
