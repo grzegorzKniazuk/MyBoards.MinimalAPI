@@ -25,9 +25,9 @@ public class MyBoardsDbContext : DbContext {
     public DbSet<Tag> WorkItemTags { get; set; }
 
     public DbSet<WorkItemState> WorkItemStates { get; set; }
-    
+
     public DbSet<WorkItemTag> WorkItemTag { get; set; }
-    
+
     // ViewModel DbSet
     public DbSet<TopAuthor> TopAuthorsView { get; set; }
 
@@ -76,7 +76,7 @@ public class MyBoardsDbContext : DbContext {
             builder.Property(x => x.Effort).HasColumnType("decimal(5,2)");
             builder.ToTable("IssueWorkItems"); // Table-per-type (TPT) mapping instead of default TPH
         });
-        
+
         modelBuilder.Entity<TaskWorkItem>(builder => {
             builder.Property(x => x.Activity).HasMaxLength(200);
             builder.Property(x => x.RemainingWork).HasPrecision(14, 2);
@@ -103,7 +103,7 @@ public class MyBoardsDbContext : DbContext {
             builder.HasOne(u => u.Address)
                 .WithOne(a => a.User)
                 .HasForeignKey<Address>(a => a.UserId);
-            
+
             // 1:N relationship between User and Comments
             builder.HasMany(u => u.Comments)
                 .WithOne(c => c.Author)
@@ -111,10 +111,18 @@ public class MyBoardsDbContext : DbContext {
         });
 
         modelBuilder.Entity<TopAuthor>(builder => {
-            builder.ToView("TopAuthorsView");  // Map to the database view
-            
+            builder.ToView("TopAuthorsView"); // Map to the database view
+
             // No primary key defined for the view model
             builder.HasNoKey();
+        });
+
+        // Configure owned type AddressCoordinates
+        modelBuilder.Entity<Address>(builder => {
+            builder.OwnsOne(a => a.Coordinates, coord => {
+                coord.Property(c => c.Latitude).HasPrecision(18, 7);
+                coord.Property(c => c.Longitude).HasPrecision(18, 7);
+            });
         });
     }
 }
