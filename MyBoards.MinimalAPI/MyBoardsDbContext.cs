@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyBoards.MinimalAPI.Entities;
+using MyBoards.MinimalAPI.Entities.ViewModels;
 
 namespace MyBoards.MinimalAPI;
 
@@ -24,6 +25,11 @@ public class MyBoardsDbContext : DbContext {
     public DbSet<Tag> WorkItemTags { get; set; }
 
     public DbSet<WorkItemState> WorkItemStates { get; set; }
+    
+    public DbSet<WorkItemTag> WorkItemTag { get; set; }
+    
+    // ViewModel DbSet
+    public DbSet<TopAuthor> TopAuthorsView { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         // Fluent API configurations for WorkItem entity
@@ -102,6 +108,13 @@ public class MyBoardsDbContext : DbContext {
             builder.HasMany(u => u.Comments)
                 .WithOne(c => c.Author)
                 .HasForeignKey(c => c.AuthorId).OnDelete(DeleteBehavior.ClientCascade); // use client cascade to avoid cycles
+        });
+
+        modelBuilder.Entity<TopAuthor>(builder => {
+            builder.ToView("TopAuthorsView");  // Map to the database view
+            
+            // No primary key defined for the view model
+            builder.HasNoKey();
         });
     }
 }

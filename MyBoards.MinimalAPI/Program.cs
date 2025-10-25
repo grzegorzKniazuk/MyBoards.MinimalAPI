@@ -47,7 +47,7 @@ app.MapGet("data", (MyBoardsDbContext db) => {
         .OrderByDescending(c => c.CreatedDate)
         .Take(5)
         .ToList();
-    
+
     // manually attach entity to change tracker
     var tag = db.WorkItemTags.AsNoTracking().First();
     var entry = db.WorkItemTags.Attach(tag); // now tracked by change tracker
@@ -140,7 +140,7 @@ app.MapDelete("deleteTag/{id}", (int id, MyBoardsDbContext db) => {
 // delete a work item with cascade delete of comments
 app.MapDelete("deleteWorkItem/{id}", (int id, MyBoardsDbContext db) => {
     var workItem = db.WorkItems.Include(w => w.Comments).FirstOrDefault(w => w.Id == id);
-    
+
     if (workItem == null) {
         return Results.NotFound();
     }
@@ -149,6 +149,31 @@ app.MapDelete("deleteWorkItem/{id}", (int id, MyBoardsDbContext db) => {
     db.SaveChanges();
 
     return Results.Ok();
+});
+
+// use raw SQL to get work items where work item title contains a specific keyword
+app.MapGet("rawSql/{keyword}", (string keyword, MyBoardsDbContext db) => {
+    var workItems = db.WorkItems
+        .FromSqlRaw("SELECT * FROM WorkItems WHERE Title LIKE {0}", $"%{keyword}%")
+        .ToList();
+
+    return Results.Ok(workItems);
+});
+
+// use raw SQL interpolation to get work items where work item description contains a specific keyword
+app.MapGet("rawSqlInterpolated/{keyword}", (string keyword, MyBoardsDbContext db) => {
+    var workItems = db.WorkItems
+        .FromSqlInterpolated($"SELECT * FROM WorkItems WHERE Description LIKE {'%' + keyword + '%'}")
+        .ToList();
+    
+    return Results.Ok(workItems);
+});
+
+// get top authors using saved view
+app.MapGet("topAuthors", (MyBoardsDbContext db) => {
+    var topAuthors = db.TopAuthorsView.AsNoTracking().ToList();
+    
+    return Results.Ok(topAuthors);
 });
 
 app.Run();
