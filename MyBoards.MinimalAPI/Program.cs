@@ -57,7 +57,7 @@ app.MapGet("data", (MyBoardsDbContext db) => {
     if (userMostComments != null) {
         var userMostCommentsDetails = db.Users.Find(userMostComments.authorId);
     }
-    
+
     // user with relations by include (join in sql)
     var user = db.Users
         .Include(u => u.Comments).ThenInclude(c => c.WorkItem)
@@ -68,7 +68,7 @@ app.MapGet("data", (MyBoardsDbContext db) => {
 });
 
 // Update priority of an epic work item
-app.MapPut("update", (MyBoardsDbContext db) => {)
+app.MapPut("update", (MyBoardsDbContext db) => {
     var epic = db.EpicWorkItems.First(epic => epic.Id == 1);
     epic.Priority = 10;
     db.SaveChanges();
@@ -105,8 +105,35 @@ app.MapPost("addUser", (MyBoardsDbContext db) => {
 
     db.Users.Add(newUser);
     db.SaveChanges();
-    
+
     return Results.Ok(newUser);
+});
+
+// delete a tag
+app.MapDelete("deleteTag/{id}", (int id, MyBoardsDbContext db) => {
+    var tag = db.WorkItemTags.Find(id);
+    if (tag == null) {
+        return Results.NotFound();
+    }
+
+    db.WorkItemTags.Remove(tag);
+    db.SaveChanges();
+
+    return Results.Ok();
+});
+
+// delete a work item with cascade delete of comments
+app.MapDelete("deleteWorkItem/{id}", (int id, MyBoardsDbContext db) => {
+    var workItem = db.WorkItems.Include(w => w.Comments).FirstOrDefault(w => w.Id == id);
+    
+    if (workItem == null) {
+        return Results.NotFound();
+    }
+
+    db.WorkItems.Remove(workItem);
+    db.SaveChanges();
+
+    return Results.Ok();
 });
 
 app.Run();
