@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MyBoards.MinimalAPI;
+using MyBoards.MinimalAPI.Dto;
 using MyBoards.MinimalAPI.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -165,15 +166,46 @@ app.MapGet("rawSqlInterpolated/{keyword}", (string keyword, MyBoardsDbContext db
     var workItems = db.WorkItems
         .FromSqlInterpolated($"SELECT * FROM WorkItems WHERE Description LIKE {'%' + keyword + '%'}")
         .ToList();
-    
+
     return Results.Ok(workItems);
 });
 
 // get top authors using saved view
 app.MapGet("topAuthors", (MyBoardsDbContext db) => {
     var topAuthors = db.TopAuthorsView.AsNoTracking().ToList();
-    
+
     return Results.Ok(topAuthors);
+});
+
+// pagination
+app.MapGet("pagination", (MyBoardsDbContext db) => {
+    // user inputs
+    string? filter = null;
+    string? sortBy = null; // "FullName" "Email" null
+    var sortByDescending = false;
+    var pageNumber = 1;
+    var pageSize = 10;
+
+    // filtering
+    var query = db.Users.AsNoTracking().Where(u => filter == null || u.FullName.ToLower().Contains(filter.ToLower()) || u.Email.ToLower().Contains(filter.ToLower()));
+
+    // count before pagination
+    var totalCount = query.Count();
+    
+    // sorting
+    query = sortBy switch {
+        "FullName" => sortByDescending ? query.OrderByDescending(u => u.FullName) : query.OrderBy(u => u.FullName),
+        "Email" => sortByDescending ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
+        _ => query
+    };
+    
+    // pagination
+    var result = query.Skip(pageNumber * (pageSize - 1)).Take(pageSize).ToList();
+    
+    // paged result
+    var pagedResult = new PagedResult<User>(result, totalCount, pageSize, pageNumber);
+    
+    return Results.Ok(pagedResult);
 });
 
 app.Run();

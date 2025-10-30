@@ -52,7 +52,7 @@ namespace MyBoards.MinimalAPI.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserAddresses");
+                    b.ToTable("UserAddresses", (string)null);
                 });
 
             modelBuilder.Entity("MyBoards.MinimalAPI.Entities.Comment", b =>
@@ -88,7 +88,7 @@ namespace MyBoards.MinimalAPI.Migrations
 
                     b.HasIndex("WorkItemId");
 
-                    b.ToTable("WorkItemComments");
+                    b.ToTable("WorkItemComments", (string)null);
                 });
 
             modelBuilder.Entity("MyBoards.MinimalAPI.Entities.Tag", b =>
@@ -105,7 +105,7 @@ namespace MyBoards.MinimalAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WorkItemTags");
+                    b.ToTable("WorkItemTags", (string)null);
                 });
 
             modelBuilder.Entity("MyBoards.MinimalAPI.Entities.User", b =>
@@ -124,7 +124,7 @@ namespace MyBoards.MinimalAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MyBoards.MinimalAPI.Entities.ViewModels.TopAuthor", b =>
@@ -175,7 +175,7 @@ namespace MyBoards.MinimalAPI.Migrations
 
                     b.HasIndex("StateId");
 
-                    b.ToTable("WorkItems");
+                    b.ToTable("WorkItems", (string)null);
 
                     b.UseTptMappingStrategy();
                 });
@@ -195,7 +195,7 @@ namespace MyBoards.MinimalAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WorkItemStates");
+                    b.ToTable("WorkItemStates", (string)null);
 
                     b.HasData(
                         new
@@ -232,7 +232,7 @@ namespace MyBoards.MinimalAPI.Migrations
 
                     b.HasIndex("WorkItemId");
 
-                    b.ToTable("WorkItemTag");
+                    b.ToTable("WorkItemTag", (string)null);
                 });
 
             modelBuilder.Entity("MyBoards.MinimalAPI.Entities.EpicWorkItem", b =>
@@ -298,7 +298,7 @@ namespace MyBoards.MinimalAPI.Migrations
 
                             b1.HasKey("AddressId");
 
-                            b1.ToTable("UserAddresses");
+                            b1.ToTable("UserAddresses", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AddressId");
