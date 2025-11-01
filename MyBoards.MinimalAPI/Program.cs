@@ -208,4 +208,21 @@ app.MapGet("pagination", (MyBoardsDbContext db) => {
     return Results.Ok(pagedResult);
 });
 
+// bulk update users
+app.MapPut("update", (MyBoardsDbContext db) => {
+    var users = db.Users.ToList();
+    
+    // simple bulk update - multiple queries
+    foreach (var user in users) {
+        user.FullName += " Updated";
+    }
+    
+    // bulk update with one query
+    db.Users.ExecuteUpdate(u => u.SetProperty(user => user.FullName, user => user.FullName + " Updated"));
+    
+    db.SaveChanges();
+    
+    return Results.Ok(users);
+});
+
 app.Run();
