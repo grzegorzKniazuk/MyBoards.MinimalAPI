@@ -10,6 +10,9 @@ public class UserConfiguration: IEntityTypeConfiguration<User> {
             .WithOne(a => a.User)
             .HasForeignKey<Address>(a => a.UserId);
 
+        // set index on Email
+        builder.HasIndex(u => new { u.Email, u.FullName }).IsUnique();
+        
         // 1:N relationship between User and Comments
         builder.HasMany(u => u.Comments)
             .WithOne(c => c.Author)
